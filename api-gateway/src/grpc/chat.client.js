@@ -4,19 +4,19 @@ const path = require("path");
 
 const PROTO_PATH = path.join(
     __dirname,
-    "../../shared/proto/auth.proto"
+    "../../../shared/proto/chat.proto"
 );
 
 const packageDefinition =
     protoLoader.loadSync(PROTO_PATH);
 
-const authProto =
-    grpc.loadPackageDefinition(packageDefinition).auth;
+const chatProto =
+    grpc.loadPackageDefinition(packageDefinition).chat;
 
-const authClient =
-    new authProto.AuthService(
-        process.env.AUTH_GRPC_URL || "localhost:50051",
+const chatClient =
+    new chatProto.ChatService(
+        process.env.CHAT_GRPC_URL || "localhost:50053",
         grpc.credentials.createInsecure()
     );
 
-module.exports = authClient;
+module.exports = chatClient;
