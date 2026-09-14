@@ -35,7 +35,15 @@ socket.on("connect", () => {
         }
     );
 });
+socket.emit("typing_start", {
+    conversationId
+});
 
+setTimeout(() => {
+    socket.emit("typing_stop", {
+        conversationId
+    });
+}, 3000);
 socket.on("new_message", (message) => {
     console.log("A received:", message);
 });

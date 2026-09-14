@@ -23,6 +23,17 @@ socket.on("connect", () => {
 socket.on("new_message", (message) => {
     console.log("B received:", message);
 });
+socket.on("user_typing", (data) => {
+    console.log(
+        `${data.userId} is typing...`
+    );
+});
+
+socket.on("user_stopped_typing", (data) => {
+    console.log(
+        `${data.userId} stopped typing`
+    );
+});
 
 socket.on("connect_error", (err) => {
     console.log("B connection error:", err.message);

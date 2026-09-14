@@ -74,6 +74,11 @@ router.get(
     "/conversations/:conversationId/messages",
     authMiddleware,
     (req, res) => {
+        const limit =
+    parseInt(req.query.limit) || 30;
+
+const before =
+    req.query.before || "";
         const userId = req.user.userId;
 
         const conversationId =
@@ -82,7 +87,9 @@ router.get(
         chatClient.getMessages(
             {
                 userId,
-                conversationId
+                conversationId,
+                limit,
+                before
             },
             (error, response) => {
                 if (error) {

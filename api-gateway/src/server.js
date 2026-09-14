@@ -6,6 +6,10 @@ const authMiddleware = require("./middleware/auth.middleware");
 const userRoutes = require("./routes/user.routes");
 const chatRoutes =
     require("./routes/chat.routes");
+const notificationRoutes =
+    require(
+        "./routes/notification.routes"
+    );
 
 
 
@@ -16,6 +20,10 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
+app.use(
+    "/api/notifications",
+    notificationRoutes
+);
 
 app.get("/api/profile", authMiddleware, (req, res) => {
     res.json({

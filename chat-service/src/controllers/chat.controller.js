@@ -81,41 +81,63 @@ async function getConversations(call, callback) {
 
 async function getMessages(call, callback) {
     try {
-        const { userId, conversationId } = call.request;
+        const {
+    userId,
+    conversationId,
+    limit = 30,
+    before
+} = call.request;
 
-        const conversation =
-            await Conversation.findById(conversationId);
+const conversation =
+    await Conversation.findById(conversationId);
 
-        if (!conversation) {
-            return callback({
-                code: grpc.status.NOT_FOUND,
-                message: "Conversation not found"
-            });
-        }
+if (!conversation) {
+    return callback({
+        code: grpc.status.NOT_FOUND,
+        message: "Conversation not found"
+    });
+}
 
-        if (!conversation.participants.includes(userId)) {
-            return callback({
-                code: grpc.status.PERMISSION_DENIED,
-                message: "Not authorized"
-            });
-        }
+if (!conversation.participants.includes(userId)) {
+    return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "Not authorized"
+    });
+}
 
-        const messages = await Message.find({
-            conversationId
-        }).sort({ createdAt: 1 });
+const query = {
+    conversationId
+};
 
-        callback(null, {
-            messages: messages.map((message) => ({
-                id: message._id.toString(),
-                conversationId:
-                    message.conversationId.toString(),
-                senderId: message.senderId,
-                content: message.content,
-                createdAt:
-                    message.createdAt.toISOString()
-            }))
-        });
+if (before) {
+    query.createdAt = {
+        $lt: new Date(before)
+    };
+}
 
+const messages = await Message.find(query)
+    .sort({ createdAt: -1 })
+    .limit(limit);
+
+const orderedMessages = messages.reverse();
+
+const nextCursor =
+    orderedMessages.length > 0
+        ? orderedMessages[0].createdAt.toISOString()
+        : "";
+
+      callback(null, {
+    messages: orderedMessages.map((message) => ({
+        id: message._id.toString(),
+        conversationId:
+            message.conversationId.toString(),
+        senderId: message.senderId,
+        content: message.content,
+        createdAt:
+            message.createdAt.toISOString()
+    })),
+    nextCursor
+});
     } catch (error) {
         callback({
             code: grpc.status.INTERNAL,

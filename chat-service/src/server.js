@@ -9,6 +9,16 @@ const socketAuthMiddleware = require("./soket/auth.middleware");
 const registerConversationHandlers = require("./soket/conversation.handler");
 const registerMessageHandlers = require("./soket/message.handler");
 const startGrpcServer=require('../grpc/chat.server')
+const registerTypingHandlers =
+    require("./soket/typing.handler");
+const registerReadReceiptHandlers =
+    require("./soket/readReceipt.handler");
+const {
+    registerPresenceHandlers
+} = require("./soket/presence.handler");
+const {
+    connectRabbitMQ
+} = require("./messaging/rabbitmq");
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +36,9 @@ io.on("connection", (socket) => {
 
     registerConversationHandlers(io, socket);
     registerMessageHandlers(io, socket);
+    registerTypingHandlers(io, socket);
+    registerReadReceiptHandlers(io, socket);
+    registerPresenceHandlers(io, socket);
 
     socket.on("disconnect", () => {
         console.log(
@@ -37,6 +50,7 @@ io.on("connection", (socket) => {
 
 async function startServer() {
     await connectDB();
+    await connectRabbitMQ();
     startGrpcServer();
 
     server.listen(PORT, () => {

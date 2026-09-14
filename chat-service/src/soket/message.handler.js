@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const Conversation = require("../models/conversation");
 const Message = require("../models/message");
-
+const publishMessageSent =
+    require("../events/messageSent.publisher");
 function registerMessageHandlers(io, socket) {
     socket.on(
         "send_message",
@@ -70,6 +71,7 @@ function registerMessageHandlers(io, socket) {
                         senderId,
                         content: content.trim()
                     });
+                    await publishMessageSent(message);
 
                 console.log("5 - message saved:", message);
 

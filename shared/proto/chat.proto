@@ -35,10 +35,12 @@ message GetConversationsResponse {
 message GetMessagesRequest {
   string userId = 1;
   string conversationId = 2;
+  int32 limit = 3;
+  string before = 4;
 }
-
 message GetMessagesResponse {
   repeated Message messages = 1;
+  string nextCursor = 2;
 }
 
 message Conversation {
