@@ -71,7 +71,15 @@ function registerMessageHandlers(io, socket) {
                         senderId,
                         content: content.trim()
                     });
-                    await publishMessageSent(message);
+                    const recipientId = conversation.participants.find(
+                     (participantId) => participantId !== senderId);
+                     if (!recipientId) {
+                        return callback({
+                            success: false,
+                            message: "Recipient not found"
+                        });
+                        }
+                    await publishMessageSent(message,recipientId);
 
                 console.log("5 - message saved:", message);
 

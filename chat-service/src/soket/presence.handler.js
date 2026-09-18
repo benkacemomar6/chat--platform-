@@ -1,28 +1,76 @@
-const onlineUsers = new Map();
+const {
+    redisClient
+} = require("../gonfig/redis");
 
 function registerPresenceHandlers(io, socket) {
     const userId = socket.user.userId;
 
-    onlineUsers.set(userId, socket.id);
+    const key = `presence:${userId}`;
 
-    console.log(`${userId} is online`);
+    async function markOnline() {
+        try {
+            const wasOnline =
+                await redisClient.sCard(key);
 
-    io.emit("user_online", {
-        userId
-    });
+            await redisClient.sAdd(
+                key,
+                socket.id
+            );
 
-    socket.on("disconnect", () => {
-        onlineUsers.delete(userId);
+            console.log(
+                `${userId} connected with socket ${socket.id}`
+            );
 
-        console.log(`${userId} is offline`);
+            // User was completely offline before this socket
+            if (wasOnline === 0) {
+                io.emit("user_online", {
+                    userId
+                });
+            }
+        } catch (error) {
+            console.error(
+                "Presence online error:",
+                error
+            );
+        }
+    }
 
-        io.emit("user_offline", {
-            userId
-        });
+    markOnline();
+
+    socket.on("disconnect", async () => {
+        try {
+            await redisClient.sRem(
+                key,
+                socket.id
+            );
+
+            const remainingSockets =
+                await redisClient.sCard(key);
+
+            console.log(
+                `${userId} disconnected socket ${socket.id}`
+            );
+
+            if (remainingSockets === 0) {
+                await redisClient.del(key);
+
+                io.emit("user_offline", {
+                    userId
+                });
+
+                console.log(
+                    `${userId} is offline`
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Presence offline error:",
+                error
+            );
+        }
     });
 }
 
 module.exports = {
-    registerPresenceHandlers,
-    onlineUsers
+    registerPresenceHandlers
 };

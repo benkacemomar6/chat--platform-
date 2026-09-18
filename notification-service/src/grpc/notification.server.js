@@ -12,7 +12,7 @@ const {
     markAsRead
 } =
     require(
-        "../controllers/notification.controller"
+        "../conrollers/notification.controller"
     );
 
 const PROTO_PATH =

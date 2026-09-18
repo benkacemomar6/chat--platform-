@@ -32,7 +32,7 @@ async function publishMessageSent(
         senderId:
             message.senderId,
 
-        recipientId,
+        recipientId: recipientId.toString(),
 
         content:
             message.content,

@@ -6,6 +6,9 @@ service AuthService {
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
   rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
+  rpc Logout(LogoutRequest) returns (ActionResponse);
+  rpc LogoutAll(LogoutAllRequest) returns (ActionResponse);
 }
 
 message RegisterRequest {
@@ -22,7 +25,27 @@ message LoginRequest {
 message AuthResponse {
   bool success = 1;
   string message = 2;
+  // Deprecated compatibility alias for accessToken.
   string token = 3;
+  string accessToken = 4;
+  string refreshToken = 5;
+}
+
+message RefreshTokenRequest {
+  string refreshToken = 1;
+}
+
+message LogoutRequest {
+  string refreshToken = 1;
+}
+
+message LogoutAllRequest {
+  string userId = 1;
+}
+
+message ActionResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 message VerifyTokenRequest {

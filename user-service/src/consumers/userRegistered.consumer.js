@@ -26,9 +26,6 @@ async function startUserRegisteredConsumer() {
                 const event = JSON.parse(
                     message.content.toString()
                 );
-                 throw new Error("Testing retry system");
-
-    
 
                 console.log("Received UserRegistered:", event);
 

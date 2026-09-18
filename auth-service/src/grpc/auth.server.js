@@ -5,7 +5,10 @@ const path = require("path");
 const {
     register,
     login,
-    verifyToken
+    verifyToken,
+    refreshToken,
+    logout,
+    logoutAll
 } = require("../controllers/auth.controller");
 
 const PROTO_PATH = path.join(
@@ -26,7 +29,10 @@ function startGrpcServer() {
         {
             register,
             login,
-            verifyToken
+            verifyToken,
+            refreshToken,
+            logout,
+            logoutAll
         }
     );
 

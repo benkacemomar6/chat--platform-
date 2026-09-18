@@ -4,6 +4,15 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 
+const { createAdapter } =
+    require("@socket.io/redis-adapter");
+const {
+    connectRedis,
+    pubClient,
+    subClient
+} = require("./gonfig/redis");
+
+
 const connectDB = require("./gonfig/db");
 const socketAuthMiddleware = require("./soket/auth.middleware");
 const registerConversationHandlers = require("./soket/conversation.handler");
@@ -22,7 +31,11 @@ const {
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.FRONTEND_URL || "http://localhost:3001"
+    }
+});
 
 const PORT = process.env.PORT || 4000;
 
@@ -50,7 +63,15 @@ io.on("connection", (socket) => {
 
 async function startServer() {
     await connectDB();
+    await connectRedis();
     await connectRabbitMQ();
+    io.adapter(
+    createAdapter(
+        pubClient,
+        subClient
+    )
+);
+   
     startGrpcServer();
 
     server.listen(PORT, () => {
